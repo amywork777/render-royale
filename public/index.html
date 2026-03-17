@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Render Royale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient background -->
+  <div class="bg-grain"></div>
+  <div class="bg-blob bg-blob-1"></div>
+  <div class="bg-blob bg-blob-2"></div>
+
+  <!-- Global toast -->
+  <div id="error-toast" class="toast hidden"></div>
+
+  <!-- ═══ HOME ═══ -->
+  <div id="screen-home" class="screen active">
+    <div class="home-container">
+      <div class="logo-mark">
+        <svg viewBox="0 0 48 48" fill="none" class="logo-icon">
+          <rect x="4" y="4" width="40" height="40" rx="8" stroke="url(#logo-grad)" stroke-width="3" fill="none"/>
+          <path d="M16 32V20l8 6 8-6v12" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <defs><linearGradient id="logo-grad" x1="4" y1="4" x2="44" y2="44"><stop stop-color="#c084fc"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs>
+        </svg>
+      </div>
+      <h1 class="title">RENDER<br>ROYALE</h1>
+      <p class="tagline">The Vizcom card game</p>
+
+      <div class="how-to-play">
+        <div class="how-step"><span class="step-num">1</span> A product card is revealed</div>
+        <div class="how-step"><span class="step-num">2</span> Pick 3 prompt cards (style, lighting, etc.)</div>
+        <div class="how-step"><span class="step-num">3</span> Create your render in Vizcom</div>
+        <div class="how-step"><span class="step-num">4</span> The judge picks the best one!</div>
+      </div>
+
+      <div class="home-form">
+        <input type="text" id="player-name" class="input" placeholder="Enter your name to start" maxlength="16" autocomplete="off" spellcheck="false">
+        <div class="home-buttons">
+          <button id="btn-create" class="btn btn-primary" disabled>Create Room</button>
+          <button id="btn-join-toggle" class="btn btn-secondary" disabled>Join Room</button>
+        </div>
+        <div id="join-section" class="join-section hidden">
+          <input type="text" id="room-code-input" class="input input-code" placeholder="CODE" maxlength="4" autocomplete="off" spellcheck="false">
+          <button id="btn-join" class="btn btn-primary">Join</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ LOBBY ═══ -->
+  <div id="screen-lobby" class="screen">
+    <div class="lobby-container">
+      <p class="label">ROOM CODE</p>
+      <div class="room-code" id="lobby-code"></div>
+      <p class="hint">Share this code with friends to join</p>
+
+      <div class="players-list" id="lobby-players"></div>
+
+      <div id="lobby-host-controls" class="hidden">
+        <div class="rounds-picker">
+          <label class="label">ROUNDS</label>
+          <div class="stepper">
+            <button class="stepper-btn" id="rounds-minus">-</button>
+            <span id="rounds-value" class="stepper-value">4</span>
+            <button class="stepper-btn" id="rounds-plus">+</button>
+          </div>
+        </div>
+        <button id="btn-start" class="btn btn-primary btn-large">Start Game</button>
+        <p class="hint" style="margin-top: 8px">You can play solo or with up to 4 players</p>
+      </div>
+      <p id="lobby-waiting" class="hint">Waiting for host to start...</p>
+    </div>
+  </div>
+
+  <!-- ═══ ROUND START ═══ -->
+  <div id="screen-round-start" class="screen">
+    <div class="round-start-container">
+      <p class="label" id="round-label">ROUND 1 OF 4</p>
+      <p class="judge-label" id="judge-label"></p>
+      <p class="hint" style="margin-bottom: 8px">Your challenge: render this product!</p>
+      <div class="product-card-reveal" id="product-reveal">
+        <div class="product-card-inner">
+          <div class="product-card-front">
+            <div class="product-img-wrap" id="product-img-wrap">
+              <img id="product-img" class="product-img" alt="">
+              <div class="product-icon" id="product-icon"></div>
+            </div>
+            <h2 class="product-name" id="product-name"></h2>
+            <p class="product-desc" id="product-desc"></p>
+            <span class="product-category" id="product-category"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CARD SELECTION ═══ -->
+  <div id="screen-card-selection" class="screen">
+    <div class="selection-container">
+      <div class="selection-header">
+        <div class="product-mini" id="mini-product"></div>
+        <div class="timer-ring" id="timer-selection">
+          <svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="36" class="timer-bg"/><circle cx="40" cy="40" r="36" class="timer-fg" id="timer-fg-selection"/></svg>
+          <span class="timer-text" id="timer-text-selection">30</span>
+        </div>
+      </div>
+
+      <div class="step-banner">
+        <span class="step-banner-num">Step 1</span>
+        Pick your constraints
+      </div>
+      <p class="instruction" id="selection-instruction">Tap <strong>3 cards</strong> to define your render's vibe</p>
+      <p class="selection-count">Selected: <span id="selected-count">0</span>/3</p>
+
+      <div class="hand" id="player-hand"></div>
+      <button id="btn-lock-cards" class="btn btn-primary btn-large" disabled>Lock In Cards</button>
+    </div>
+  </div>
+
+  <!-- ═══ RENDERING ═══ -->
+  <div id="screen-rendering" class="screen">
+    <div class="rendering-container">
+      <div class="rendering-header">
+        <div class="product-mini" id="render-product"></div>
+        <div class="timer-ring" id="timer-rendering">
+          <svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="36" class="timer-bg"/><circle cx="40" cy="40" r="36" class="timer-fg" id="timer-fg-rendering"/></svg>
+          <span class="timer-text" id="timer-text-rendering">5:00</span>
+        </div>
+      </div>
+
+      <div class="step-banner" id="render-instructions">
+        <span class="step-banner-num">Step 2</span>
+        Create your render in Vizcom, then upload it here
+      </div>
+
+      <div class="my-cards" id="render-my-cards"></div>
+
+      <div id="render-upload-zone" class="upload-zone">
+        <div class="upload-content" id="upload-content">
+          <svg viewBox="0 0 48 48" class="upload-icon"><path d="M24 32V16m0 0l-8 8m8-8l8 8M8 38h32" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          <p class="upload-text">Drop your Vizcom render here</p>
+          <p class="upload-hint">or click to browse / Ctrl+V to paste</p>
+          <input type="file" id="file-input" accept="image/*" hidden>
+        </div>
+        <img id="upload-preview" class="upload-preview hidden" alt="Your render">
+      </div>
+      <button id="btn-submit-render" class="btn btn-primary btn-large" disabled>Submit Render</button>
+
+      <div class="render-status" id="render-status"></div>
+
+      <div id="judge-waiting" class="judge-waiting hidden">
+        <div class="judge-waiting-icon">&#x1F9D1;&#x200D;&#x2696;&#xFE0F;</div>
+        <h3>You're the Judge</h3>
+        <p class="hint">Sit back and wait for the renders to come in...</p>
+        <div class="render-status" id="judge-render-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ JUDGING ═══ -->
+  <div id="screen-judging" class="screen">
+    <div class="judging-container">
+      <h2 class="section-title" id="judging-title">Pick Your Favorite</h2>
+      <p class="hint" id="judging-hint">Click a submission to crown the winner</p>
+      <div class="submissions-grid" id="submissions-grid"></div>
+      <button id="btn-pick-winner" class="btn btn-primary btn-large hidden">Crown the Winner</button>
+    </div>
+  </div>
+
+  <!-- ═══ SCOREBOARD ═══ -->
+  <div id="screen-scoreboard" class="screen">
+    <div class="scoreboard-container">
+      <div class="winner-announce" id="winner-announce">
+        <p class="label">ROUND WINNER</p>
+        <h2 class="winner-name" id="winner-name"></h2>
+      </div>
+      <div class="scores-list" id="scores-list"></div>
+      <button id="btn-next-round" class="btn btn-primary btn-large hidden">Next Round</button>
+    </div>
+  </div>
+
+  <!-- ═══ GAME OVER ═══ -->
+  <div id="screen-game-over" class="screen">
+    <div class="gameover-container">
+      <h1 class="title gameover-title">GAME<br>OVER</h1>
+      <div class="final-scores" id="final-scores"></div>
+      <button id="btn-play-again" class="btn btn-primary btn-large hidden">Play Again</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
