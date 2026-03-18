@@ -39,6 +39,20 @@ let rounds = 4;
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
+// ── Visual Juice Helpers ────────────────────────────────────────────────────
+
+function screenShake() {
+  document.body.classList.add('shake');
+  setTimeout(() => document.body.classList.remove('shake'), 400);
+}
+
+function numBump(el) {
+  if (!el) return;
+  el.classList.remove('bump');
+  el.offsetHeight; // force reflow
+  el.classList.add('bump');
+}
+
 // ── Screen Management ────────────────────────────────────────────────────────
 
 function showScreen(id) {
@@ -54,9 +68,12 @@ function showScreen(id) {
 
 // ── Toast ────────────────────────────────────────────────────────────────────
 
+const TOAST_EMOJI = { error: '\u274C', success: '\u2705', info: '\u{1F4A1}' };
+
 function showToast(msg, type = 'error') {
   const toast = $('#error-toast');
-  toast.textContent = msg;
+  const emoji = TOAST_EMOJI[type] || '';
+  toast.textContent = `${emoji} ${msg}`;
   toast.className = `toast ${type}`;
   clearTimeout(toast._timer);
   toast._timer = setTimeout(() => toast.className = 'toast hidden', 3500);
@@ -67,12 +84,11 @@ function showToast(msg, type = 'error') {
 const SEAT_POSITIONS = ['seat-bottom', 'seat-top', 'seat-left', 'seat-right'];
 
 function getSeatLayout(players, myId) {
-  // "You" always sits at the bottom, others fill top/left/right
   const me = players.find(p => p.id === myId);
   const others = players.filter(p => p.id !== myId);
   const seats = [];
 
-  if (me) seats.push({ ...me, position: SEAT_POSITIONS[0] }); // bottom
+  if (me) seats.push({ ...me, position: SEAT_POSITIONS[0] });
   others.forEach((p, i) => {
     seats.push({ ...p, position: SEAT_POSITIONS[i + 1] || SEAT_POSITIONS[1] });
   });
@@ -88,7 +104,7 @@ function renderTable(containerId, opts = {}) {
     judgeId = null,
     winnerId = null,
     showScore = false,
-    selectedIds = null,  // Set of player IDs who locked cards
+    selectedIds = null,
   } = opts;
 
   const container = $(`#${containerId}`);
@@ -173,10 +189,24 @@ codeInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') btnJoin.click();
 });
 
+// Button ripple effect
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.btn');
+  if (!btn) return;
+  const rect = btn.getBoundingClientRect();
+  btn.style.setProperty('--ripple-x', ((e.clientX - rect.left) / rect.width * 100) + '%');
+  btn.style.setProperty('--ripple-y', ((e.clientY - rect.top) / rect.height * 100) + '%');
+});
+
 // ── LOBBY ────────────────────────────────────────────────────────────────────
 
 function renderLobby() {
-  $('#lobby-code').textContent = state.roomCode;
+  // Animate room code letters individually
+  const code = state.roomCode || '';
+  const codeEl = $('#lobby-code');
+  codeEl.innerHTML = code.split('').map((ch, i) =>
+    `<span class="room-code-letter" style="animation-delay: ${i * 0.1}s">${ch}</span>`
+  ).join('');
 
   renderTable('lobby-seats', {
     hostId: state.hostId,
@@ -195,11 +225,15 @@ function renderLobby() {
 
 $('#rounds-minus').addEventListener('click', () => {
   rounds = Math.max(1, rounds - 1);
-  $('#rounds-value').textContent = rounds;
+  const val = $('#rounds-value');
+  val.textContent = rounds;
+  numBump(val);
 });
 $('#rounds-plus').addEventListener('click', () => {
   rounds = Math.min(10, rounds + 1);
-  $('#rounds-value').textContent = rounds;
+  const val = $('#rounds-value');
+  val.textContent = rounds;
+  numBump(val);
 });
 
 $('#btn-start').addEventListener('click', () => {
@@ -275,9 +309,18 @@ function showRoundStart(data) {
   inner.style.animation = '';
 
   showScreen('round-start');
+  screenShake(); // dramatic reveal!
 }
 
 // ── CARD SELECTION ───────────────────────────────────────────────────────────
+
+function updateSelectionDots() {
+  const dotsEl = $('#selection-dots');
+  if (!dotsEl) return;
+  dotsEl.innerHTML = [0, 1, 2].map(i =>
+    `<div class="selection-dot ${i < state.selected.length ? 'filled' : ''}"></div>`
+  ).join('');
+}
 
 function showCardSelection() {
   if (state.isJudge && !state.soloMode) {
@@ -298,14 +341,18 @@ function showCardSelection() {
 
   state.selected = [];
   $('#selected-count').textContent = '0';
-  $('#btn-lock-cards').disabled = true;
-  $('#btn-lock-cards').textContent = 'Lock In Cards';
+  const lockBtn = $('#btn-lock-cards');
+  lockBtn.disabled = true;
+  lockBtn.textContent = '\u{1F512} Lock In Cards';
+  lockBtn.classList.remove('btn-ready');
   $('#selection-instruction').innerHTML = 'Tap <strong>3 cards</strong> to define your render\u2019s vibe';
+
+  updateSelectionDots();
 
   const hand = $('#player-hand');
 
   hand.innerHTML = state.hand.map((card, i) => `
-    <div class="prompt-card" data-id="${card.id}" data-category="${card.category}" style="animation-delay: ${i * 0.06}s">
+    <div class="prompt-card" data-id="${card.id}" data-category="${card.category}" style="animation-delay: ${i * 0.07}s">
       <div class="card-category-tag">${CATEGORY_ICONS[card.category] || ''} ${CATEGORY_LABELS[card.category] || card.category}</div>
       <div class="card-name">${esc(card.name)}</div>
       <div class="card-desc">${esc(card.desc)}</div>
@@ -326,16 +373,27 @@ function showCardSelection() {
         }
         el.classList.add('selected');
         state.selected.push(id);
+        // Pop animation on select
+        el.classList.add('just-selected');
+        setTimeout(() => el.classList.remove('just-selected'), 300);
       }
       $('#selected-count').textContent = state.selected.length;
-      $('#btn-lock-cards').disabled = state.selected.length !== 3;
+      const lockBtn2 = $('#btn-lock-cards');
+      lockBtn2.disabled = state.selected.length !== 3;
+      if (state.selected.length === 3) {
+        lockBtn2.classList.add('btn-ready');
+      } else {
+        lockBtn2.classList.remove('btn-ready');
+      }
+
+      updateSelectionDots();
 
       // Update instruction text dynamically
       const remaining = 3 - state.selected.length;
       const instr = $('#selection-instruction');
       if (instr) {
         if (remaining === 0) {
-          instr.innerHTML = 'Looking good! Hit <strong>Lock In</strong> when ready';
+          instr.innerHTML = '\u{1F525} Looking good! Hit <strong>Lock In</strong> when ready';
         } else {
           instr.innerHTML = `Pick <strong>${remaining} more card${remaining > 1 ? 's' : ''}</strong> to define your render`;
         }
@@ -352,8 +410,10 @@ $('#btn-lock-cards').addEventListener('click', () => {
   $('#player-hand').querySelectorAll('.prompt-card').forEach(el => {
     el.classList.add('locked');
   });
-  $('#btn-lock-cards').disabled = true;
-  $('#btn-lock-cards').textContent = 'Locked In \u2713';
+  const lockBtn = $('#btn-lock-cards');
+  lockBtn.disabled = true;
+  lockBtn.textContent = '\u2705 Locked In';
+  lockBtn.classList.remove('btn-ready');
   showToast(state.soloMode ? 'Cards locked! Time to render!' : 'Cards locked! Waiting for others...', 'success');
 });
 
@@ -384,7 +444,7 @@ function showRenderScreen() {
   $('#render-status').classList.remove('hidden');
   $('#render-instructions').classList.remove('hidden');
   $('#btn-submit-render').disabled = true;
-  $('#btn-submit-render').textContent = 'Submit Render';
+  $('#btn-submit-render').textContent = '\u{1F680} Submit Render';
 
   state.uploadedImage = null;
   $('#upload-preview').classList.add('hidden');
@@ -461,7 +521,9 @@ function handleImageFile(file) {
     $('#upload-preview').src = e.target.result;
     $('#upload-preview').classList.remove('hidden');
     $('#upload-content').classList.add('hidden');
-    $('#btn-submit-render').disabled = false;
+    const submitBtn = $('#btn-submit-render');
+    submitBtn.disabled = false;
+    submitBtn.classList.add('btn-ready');
     showToast('Render loaded! Hit Submit when ready.', 'success');
   };
   reader.readAsDataURL(file);
@@ -470,8 +532,10 @@ function handleImageFile(file) {
 $('#btn-submit-render').addEventListener('click', () => {
   if (!state.uploadedImage) return;
   socket.emit('submit-render', { image: state.uploadedImage });
-  $('#btn-submit-render').disabled = true;
-  $('#btn-submit-render').textContent = 'Submitted \u2713';
+  const btn = $('#btn-submit-render');
+  btn.disabled = true;
+  btn.textContent = '\u2705 Submitted';
+  btn.classList.remove('btn-ready');
 });
 
 // ── JUDGING ──────────────────────────────────────────────────────────────────
@@ -485,13 +549,13 @@ function showJudging(data) {
   });
 
   if (state.isJudge) {
-    $('#judging-title').textContent = 'Pick Your Favorite';
+    $('#judging-title').textContent = '\u{1F451} Pick Your Favorite';
     $('#judging-hint').textContent = 'Click a submission to crown the winner';
     $('#btn-pick-winner').classList.remove('hidden');
     $('#btn-pick-winner').disabled = true;
-    $('#btn-pick-winner').textContent = 'Crown the Winner';
+    $('#btn-pick-winner').textContent = '\u{1F451} Crown the Winner';
   } else {
-    $('#judging-title').textContent = 'Judging Time';
+    $('#judging-title').textContent = '\u2696\uFE0F Judging Time';
     const judgeName = state.players.find(p => p.id === data.judgeId)?.name || 'The Judge';
     $('#judging-hint').textContent = `${judgeName} is choosing a winner...`;
     $('#btn-pick-winner').classList.add('hidden');
@@ -522,7 +586,9 @@ function showJudging(data) {
         grid.querySelectorAll('.submission-card').forEach(c => c.classList.remove('picked'));
         el.classList.add('picked');
         state.pickedSubmission = parseInt(el.dataset.index);
-        $('#btn-pick-winner').disabled = false;
+        const pickBtn = $('#btn-pick-winner');
+        pickBtn.disabled = false;
+        pickBtn.classList.add('btn-ready');
       });
     });
   }
@@ -533,8 +599,10 @@ function showJudging(data) {
 $('#btn-pick-winner').addEventListener('click', () => {
   if (state.pickedSubmission === null) return;
   socket.emit('judge-pick', { index: state.pickedSubmission });
-  $('#btn-pick-winner').disabled = true;
-  $('#btn-pick-winner').textContent = 'Picking...';
+  const btn = $('#btn-pick-winner');
+  btn.disabled = true;
+  btn.textContent = '\u{1F3B2} Picking...';
+  btn.classList.remove('btn-ready');
 });
 
 // ── SCOREBOARD ───────────────────────────────────────────────────────────────
@@ -546,10 +614,11 @@ function showScoreboard(data) {
   }));
 
   if (data.soloMode) {
-    $('#winner-name').textContent = 'Nice render!';
+    $('#winner-name').textContent = '\u{1F3A8} Nice render!';
   } else {
     $('#winner-name').textContent = data.winnerName;
     launchConfetti();
+    screenShake();
   }
 
   renderTable('scoreboard-seats', {
@@ -574,7 +643,7 @@ function showScoreboard(data) {
   const btn = $('#btn-next-round');
   if (state.isHost) {
     btn.classList.remove('hidden');
-    btn.textContent = data.round >= data.totalRounds ? 'See Final Results' : 'Next Round \u2192';
+    btn.textContent = data.round >= data.totalRounds ? '\u{1F3C6} See Final Results' : 'Next Round \u{1F449}';
   } else {
     btn.classList.add('hidden');
   }
@@ -595,7 +664,7 @@ function showGameOver(data) {
     const fullPlayer = state.players.find(pl => pl.id === p.id);
     const avatar = fullPlayer?.avatar || '\u{1F3AE}';
     return `
-      <div class="final-row ${i === 0 ? 'champion' : ''}" style="animation: fadeIn 0.5s ease-out ${i * 0.1}s backwards">
+      <div class="final-row ${i === 0 ? 'champion' : ''}" style="animation-delay: ${i * 0.15}s">
         <span class="final-rank">${i === 0 ? '\u{1F451}' : `#${i+1}`}</span>
         <div class="seat-avatar" style="background: linear-gradient(135deg, ${p.color}40, ${p.color}20); width:44px; height:44px; font-size:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0">${avatar}</div>
         <span class="final-name">${esc(p.name)}</span>
@@ -612,6 +681,7 @@ function showGameOver(data) {
 
   showScreen('game-over');
   launchConfetti();
+  screenShake();
 }
 
 $('#btn-play-again').addEventListener('click', () => {
@@ -625,14 +695,16 @@ function updateTimer(data) {
   const fraction = data.remaining / data.total;
   const offset = circumference * (1 - fraction);
 
-  let fgEl, textEl;
+  let fgEl, textEl, ringEl;
   if (data.phase === 'card-selection') {
     fgEl = $('#timer-fg-selection');
     textEl = $('#timer-text-selection');
+    ringEl = $('#timer-selection');
     if (textEl) textEl.textContent = data.remaining;
   } else if (data.phase === 'rendering') {
     fgEl = $('#timer-fg-rendering');
     textEl = $('#timer-text-rendering');
+    ringEl = $('#timer-rendering');
     if (textEl) {
       const mins = Math.floor(data.remaining / 60);
       const secs = data.remaining % 60;
@@ -645,6 +717,15 @@ function updateTimer(data) {
     fgEl.classList.remove('warning', 'danger');
     if (fraction < 0.15) fgEl.classList.add('danger');
     else if (fraction < 0.35) fgEl.classList.add('warning');
+  }
+
+  // Timer urgency shake
+  if (ringEl) {
+    if (fraction < 0.15) {
+      ringEl.classList.add('urgent');
+    } else {
+      ringEl.classList.remove('urgent');
+    }
   }
 }
 
@@ -734,7 +815,6 @@ socket.on('auto-selected', (data) => {
 socket.on('player-selected', (data) => {
   if (data.playerId) {
     selectedPlayers.add(data.playerId);
-    // Re-render selection seats to show checkmark
     renderTable('selection-seats', {
       judgeId: state.judgeId,
       selectedIds: selectedPlayers,
@@ -766,8 +846,10 @@ function launchConfetti() {
   document.body.appendChild(container);
 
   const colors = ['#8b5cf6', '#a78bfa', '#c084fc', '#fbbf24', '#f59e0b', '#ec4899', '#22c55e', '#3b82f6'];
+  const emojis = ['\u{1F389}', '\u2728', '\u{1F31F}', '\u{1F525}', '\u{1F3A8}', '\u{1F451}', '\u{1F4A5}'];
 
-  for (let i = 0; i < 50; i++) {
+  // Regular confetti pieces
+  for (let i = 0; i < 60; i++) {
     const piece = document.createElement('div');
     piece.className = 'confetti-piece';
     const color = colors[Math.floor(Math.random() * colors.length)];
@@ -786,7 +868,19 @@ function launchConfetti() {
     container.appendChild(piece);
   }
 
-  setTimeout(() => container.remove(), 5000);
+  // Emoji confetti - bigger, fewer, floaty
+  for (let i = 0; i < 8; i++) {
+    const emoji = document.createElement('div');
+    emoji.className = 'confetti-piece confetti-emoji';
+    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    emoji.style.left = (10 + Math.random() * 80) + '%';
+    emoji.style.animationDelay = (Math.random() * 1.2) + 's';
+    emoji.style.animationDuration = (3 + Math.random() * 2) + 's';
+
+    container.appendChild(emoji);
+  }
+
+  setTimeout(() => container.remove(), 6000);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
