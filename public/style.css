@@ -414,7 +414,7 @@ html, body {
 .poker-table-wrapper {
   position: relative;
   width: 100%; max-width: 700px;
-  margin: 0 auto 48px;
+  margin: 0 auto 60px;
   padding: 48px 40px 72px;
 }
 
@@ -487,8 +487,8 @@ html, body {
   to { transform: scale(1); opacity: 1; }
 }
 
-.seat-bottom { bottom: -56px; left: 50%; transform: translateX(-50%); }
-.seat-top { top: -42px; left: 50%; transform: translateX(-50%); }
+.seat-bottom { bottom: -36px; left: 50%; transform: translateX(-50%); }
+.seat-top { top: -36px; left: 50%; transform: translateX(-50%); }
 .seat-left { top: 50%; left: -32px; transform: translateY(-50%); }
 .seat-right { top: 50%; right: -32px; transform: translateY(-50%); }
 
@@ -697,7 +697,7 @@ html, body {
 /* ── CARD SELECTION ─────────────────────────────────────────────────────── */
 
 .selection-layout {
-  gap: 16px;
+  gap: 24px;
 }
 
 .product-mini {
@@ -1107,12 +1107,12 @@ html, body {
 @media (max-width: 600px) {
   .poker-table { height: 180px; }
   .table-compact .poker-table { height: 140px; }
-  .poker-table-wrapper { padding: 40px 24px 64px; margin-bottom: 40px; }
+  .poker-table-wrapper { padding: 40px 24px 64px; margin-bottom: 52px; }
   .room-code { font-size: 2rem; }
   .seat-avatar { width: 40px; height: 40px; font-size: 20px; }
   .seat-name { font-size: 0.65rem; }
-  .seat-bottom { bottom: -48px; }
-  .seat-top { top: -36px; }
+  .seat-bottom { bottom: -32px; }
+  .seat-top { top: -32px; }
   .seat-left { left: -20px; }
   .seat-right { right: -20px; }
 
