@@ -548,6 +548,7 @@ function showScoreboard(data) {
     $('#winner-name').textContent = 'Nice render!';
   } else {
     $('#winner-name').textContent = data.winnerName;
+    launchConfetti();
   }
 
   renderTable('scoreboard-seats', {
@@ -609,6 +610,7 @@ function showGameOver(data) {
   }
 
   showScreen('game-over');
+  launchConfetti();
 }
 
 $('#btn-play-again').addEventListener('click', () => {
@@ -754,6 +756,37 @@ socket.on('back-to-lobby', (data) => {
   renderLobby();
   showScreen('lobby');
 });
+
+// ── Confetti ─────────────────────────────────────────────────────────────────
+
+function launchConfetti() {
+  const container = document.createElement('div');
+  container.className = 'confetti-container';
+  document.body.appendChild(container);
+
+  const colors = ['#8b5cf6', '#a78bfa', '#c084fc', '#fbbf24', '#f59e0b', '#ec4899', '#22c55e', '#3b82f6'];
+
+  for (let i = 0; i < 50; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const left = Math.random() * 100;
+    const delay = Math.random() * 0.8;
+    const size = 6 + Math.random() * 8;
+
+    piece.style.left = left + '%';
+    piece.style.width = size + 'px';
+    piece.style.height = size + 'px';
+    piece.style.background = color;
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.animationDelay = delay + 's';
+    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+
+    container.appendChild(piece);
+  }
+
+  setTimeout(() => container.remove(), 5000);
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 

@@ -334,12 +334,32 @@ html, body {
 
 .poker-table {
   width: 100%; height: 320px;
-  background: linear-gradient(145deg, #1e1b2e, #16141f);
+  background:
+    url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence baseFrequency='0.8' numOctaves='3' type='fractalNoise'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.03'/%3E%3C/svg%3E"),
+    linear-gradient(145deg, #1e1b2e, #16141f);
   border: 3px solid rgba(139,92,246,0.25);
   border-radius: 50%;
-  box-shadow: 0 0 80px rgba(139,92,246,0.12), inset 0 2px 30px rgba(0,0,0,0.5);
+  box-shadow:
+    0 0 80px rgba(139,92,246,0.12),
+    inset 0 2px 30px rgba(0,0,0,0.5),
+    inset 0 0 60px rgba(139,92,246,0.05);
   display: flex; align-items: center; justify-content: center;
   position: relative;
+  animation: tableGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes tableGlow {
+  0% { border-color: rgba(139,92,246,0.2); box-shadow: 0 0 60px rgba(139,92,246,0.08), inset 0 2px 30px rgba(0,0,0,0.5), inset 0 0 60px rgba(139,92,246,0.03); }
+  100% { border-color: rgba(139,92,246,0.35); box-shadow: 0 0 100px rgba(139,92,246,0.18), inset 0 2px 30px rgba(0,0,0,0.5), inset 0 0 60px rgba(139,92,246,0.08); }
+}
+
+/* Rail edge — outer ring around the table */
+.poker-table::before {
+  content: '';
+  position: absolute; inset: -8px;
+  border-radius: 50%;
+  border: 2px solid rgba(139,92,246,0.08);
+  pointer-events: none;
 }
 
 .table-center-content {
@@ -391,8 +411,9 @@ html, body {
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 26px;
-  border: 3px solid var(--bg);
+  border: 3px solid var(--surface-3);
   position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .seat-crown {
@@ -642,19 +663,19 @@ html, body {
 
 .hand {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: flex-end;
   position: relative;
-  padding: 20px 16px 0;
+  padding: 20px 16px 8px;
   min-height: 180px;
   overflow-x: auto;
   overflow-y: visible;
   gap: 10px;
   width: 100%;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: var(--surface-3) transparent;
+  scrollbar-width: none; /* Firefox */
 }
+.hand::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
 
 .prompt-card {
   position: relative;
@@ -676,7 +697,9 @@ html, body {
 }
 
 @keyframes dealCardFan {
-  from { transform: translateY(100px) rotate(0deg); opacity: 0; }
+  0% { transform: translateY(80px) scale(0.8); opacity: 0; }
+  60% { transform: translateY(-6px) scale(1.02); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 .prompt-card::before {
@@ -879,6 +902,28 @@ html, body {
 
 .winner-announce {
   animation: winnerPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+/* Confetti burst */
+.confetti-container {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  overflow: hidden;
+}
+.confetti-piece {
+  position: absolute;
+  width: 10px; height: 10px;
+  top: -20px;
+  animation: confettiFall 3s ease-in forwards;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  25% { transform: translateY(25vh) rotate(180deg) translateX(20px) scale(0.9); }
+  50% { transform: translateY(50vh) rotate(360deg) translateX(-10px) scale(0.8); }
+  75% { opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg) translateX(15px) scale(0.4); opacity: 0; }
 }
 .winner-name {
   font-family: var(--font-display);
