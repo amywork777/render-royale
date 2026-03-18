@@ -103,10 +103,11 @@ function renderTable(containerId, opts = {}) {
     const isWinner = p.id === winnerId;
     const hasSelected = selectedIds && selectedIds.has(p.id);
 
-    let badges = '';
-    if (isMe) badges += '<span class="seat-badge">You</span> ';
-    if (isHost) badges += '<span class="seat-badge" style="background:var(--cat-lighting)">Host</span> ';
-    if (isJudge) badges += '<span class="seat-badge" style="background:var(--cat-palette)">Judge</span> ';
+    const badgeParts = [];
+    if (isMe) badgeParts.push('<span class="seat-badge">You</span>');
+    if (isHost) badgeParts.push('<span class="seat-badge" style="background:var(--cat-lighting)">Host</span>');
+    if (isJudge) badgeParts.push('<span class="seat-badge" style="background:var(--cat-palette)">Judge</span>');
+    const badges = badgeParts.length ? `<div class="seat-badges">${badgeParts.join('')}</div>` : '';
 
     let info = '';
     if (showScore) info = `<span class="seat-info">${p.score || 0} pt${(p.score || 0) !== 1 ? 's' : ''}</span>`;

@@ -414,7 +414,7 @@ html, body {
 .poker-table-wrapper {
   position: relative;
   width: 100%; max-width: 700px;
-  margin: 0 auto;
+  margin: 0 auto 48px;
   padding: 48px 40px 72px;
 }
 
@@ -523,6 +523,13 @@ html, body {
   color: var(--text-dim);
 }
 
+.seat-badges {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .seat-badge {
   font-family: var(--font-mono);
   font-size: 0.6rem;
@@ -530,6 +537,7 @@ html, body {
   border-radius: var(--radius-xs);
   background: var(--primary-dim);
   color: white;
+  white-space: nowrap;
 }
 
 .seat-check {
@@ -1099,7 +1107,7 @@ html, body {
 @media (max-width: 600px) {
   .poker-table { height: 180px; }
   .table-compact .poker-table { height: 140px; }
-  .poker-table-wrapper { padding: 40px 24px 64px; }
+  .poker-table-wrapper { padding: 40px 24px 64px; margin-bottom: 40px; }
   .room-code { font-size: 2rem; }
   .seat-avatar { width: 40px; height: 40px; font-size: 20px; }
   .seat-name { font-size: 0.65rem; }
