@@ -62,6 +62,72 @@ function showToast(msg, type = 'error') {
   toast._timer = setTimeout(() => toast.className = 'toast hidden', 3500);
 }
 
+// ── Poker Table — Seat Layout ────────────────────────────────────────────────
+
+const SEAT_POSITIONS = ['seat-bottom', 'seat-top', 'seat-left', 'seat-right'];
+
+function getSeatLayout(players, myId) {
+  // "You" always sits at the bottom, others fill top/left/right
+  const me = players.find(p => p.id === myId);
+  const others = players.filter(p => p.id !== myId);
+  const seats = [];
+
+  if (me) seats.push({ ...me, position: SEAT_POSITIONS[0] }); // bottom
+  others.forEach((p, i) => {
+    seats.push({ ...p, position: SEAT_POSITIONS[i + 1] || SEAT_POSITIONS[1] });
+  });
+
+  return seats;
+}
+
+function renderTable(containerId, opts = {}) {
+  const {
+    players = state.players,
+    myId = state.myId,
+    hostId = null,
+    judgeId = null,
+    winnerId = null,
+    showScore = false,
+    selectedIds = null,  // Set of player IDs who locked cards
+  } = opts;
+
+  const container = $(`#${containerId}`);
+  if (!container) return;
+
+  const seats = getSeatLayout(players, myId);
+
+  container.innerHTML = seats.map((p, i) => {
+    const isMe = p.id === myId;
+    const isHost = p.id === hostId;
+    const isJudge = p.id === judgeId;
+    const isWinner = p.id === winnerId;
+    const hasSelected = selectedIds && selectedIds.has(p.id);
+
+    let badges = '';
+    if (isMe) badges += '<span class="seat-badge">You</span> ';
+    if (isHost) badges += '<span class="seat-badge" style="background:var(--cat-lighting)">Host</span> ';
+    if (isJudge) badges += '<span class="seat-badge" style="background:var(--cat-palette)">Judge</span> ';
+
+    let info = '';
+    if (showScore) info = `<span class="seat-info">${p.score || 0} pt${(p.score || 0) !== 1 ? 's' : ''}</span>`;
+    if (hasSelected) info += '<span class="seat-check">\u2713</span>';
+
+    const avatar = p.avatar || '\u{1F3AE}';
+
+    return `
+      <div class="table-seat ${p.position} ${isWinner ? 'seat-winner' : ''}" style="animation-delay: ${i * 0.1}s">
+        <div class="seat-avatar" style="background: linear-gradient(135deg, ${p.color}40, ${p.color}20)">
+          ${isWinner ? '<span class="seat-crown">\u{1F451}</span>' : ''}
+          ${avatar}
+        </div>
+        <span class="seat-name">${esc(p.name)}</span>
+        ${badges}
+        ${info}
+      </div>
+    `;
+  }).join('');
+}
+
 // ── HOME ─────────────────────────────────────────────────────────────────────
 
 const nameInput = $('#player-name');
@@ -110,15 +176,10 @@ codeInput.addEventListener('keydown', (e) => {
 
 function renderLobby() {
   $('#lobby-code').textContent = state.roomCode;
-  const list = $('#lobby-players');
-  list.innerHTML = state.players.map(p => `
-    <div class="player-row">
-      <div class="player-avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div>
-      <span class="player-name">${esc(p.name)}</span>
-      ${p.id === state.myId ? '<span class="player-badge">You</span>' : ''}
-      ${p.id === state.hostId ? '<span class="player-badge host">Host</span>' : ''}
-    </div>
-  `).join('');
+
+  renderTable('lobby-seats', {
+    hostId: state.hostId,
+  });
 
   const hostControls = $('#lobby-host-controls');
   const waiting = $('#lobby-waiting');
@@ -146,6 +207,8 @@ $('#btn-start').addEventListener('click', () => {
 
 // ── ROUND START ──────────────────────────────────────────────────────────────
 
+const selectedPlayers = new Set();
+
 function showRoundStart(data) {
   state.round = data.round;
   state.totalRounds = data.totalRounds;
@@ -157,8 +220,13 @@ function showRoundStart(data) {
   state.selected = [];
   state.uploadedImage = null;
   state.pickedSubmission = null;
+  selectedPlayers.clear();
 
   $('#round-label').textContent = `ROUND ${data.round} OF ${data.totalRounds}`;
+
+  renderTable('round-start-seats', {
+    judgeId: data.judgeId,
+  });
 
   if (state.soloMode) {
     $('#judge-label').innerHTML = 'You\u2019re playing solo \u2014 pick your cards and render!';
@@ -216,6 +284,11 @@ function showCardSelection() {
     return;
   }
 
+  renderTable('selection-seats', {
+    judgeId: state.judgeId,
+    selectedIds: selectedPlayers,
+  });
+
   const miniImg = productImgUrl(state.product.img, 64, 64);
   const miniIcon = CATEGORY_ICONS[state.product.category] || '\u{1F4E6}';
   $('#mini-product').innerHTML = miniImg
@@ -229,13 +302,22 @@ function showCardSelection() {
   $('#selection-instruction').innerHTML = 'Tap <strong>3 cards</strong> to define your render\u2019s vibe';
 
   const hand = $('#player-hand');
-  hand.innerHTML = state.hand.map((card, i) => `
-    <div class="prompt-card" data-id="${card.id}" data-category="${card.category}" style="animation-delay: ${i * 0.06}s">
-      <div class="card-category-tag">${CATEGORY_ICONS[card.category] || ''} ${CATEGORY_LABELS[card.category] || card.category}</div>
-      <div class="card-name">${esc(card.name)}</div>
-      <div class="card-desc">${esc(card.desc)}</div>
-    </div>
-  `).join('');
+  const cardCount = state.hand.length;
+  const maxFanAngle = 20; // degrees total fan spread
+  const angleStep = cardCount > 1 ? maxFanAngle / (cardCount - 1) : 0;
+  const startAngle = -maxFanAngle / 2;
+
+  hand.innerHTML = state.hand.map((card, i) => {
+    const rotation = cardCount > 1 ? startAngle + (angleStep * i) : 0;
+    return `
+      <div class="prompt-card" data-id="${card.id}" data-category="${card.category}"
+           style="--fan-rotation: ${rotation}deg; transform: rotate(${rotation}deg); animation-delay: ${i * 0.06}s">
+        <div class="card-category-tag">${CATEGORY_ICONS[card.category] || ''} ${CATEGORY_LABELS[card.category] || card.category}</div>
+        <div class="card-name">${esc(card.name)}</div>
+        <div class="card-desc">${esc(card.desc)}</div>
+      </div>
+    `;
+  }).join('');
 
   hand.querySelectorAll('.prompt-card').forEach(el => {
     el.addEventListener('click', () => {
@@ -338,7 +420,6 @@ const fileInput = $('#file-input');
 
 uploadZone.addEventListener('click', (e) => {
   if (e.target.closest('#upload-preview')) {
-    // Click on preview to re-upload
     fileInput.click();
     return;
   }
@@ -405,6 +486,10 @@ $('#btn-submit-render').addEventListener('click', () => {
 function showJudging(data) {
   state.judgingData = data;
   state.pickedSubmission = null;
+
+  renderTable('judging-seats', {
+    judgeId: data.judgeId,
+  });
 
   if (state.isJudge) {
     $('#judging-title').textContent = 'Pick Your Favorite';
@@ -473,15 +558,24 @@ function showScoreboard(data) {
     $('#winner-name').textContent = data.winnerName;
   }
 
-  const list = $('#scores-list');
+  renderTable('scoreboard-seats', {
+    winnerId: data.winnerId,
+    showScore: true,
+  });
+
+  // Show scoreboard in table center
+  const center = $('#scoreboard-center');
   const sorted = [...data.scores].sort((a, b) => b.score - a.score);
-  list.innerHTML = sorted.map(p => `
-    <div class="score-row ${p.id === data.winnerId ? 'winner' : ''}">
-      <div class="player-avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div>
-      <span class="score-name">${esc(p.name)}</span>
-      <span class="score-points">${p.score} pt${p.score !== 1 ? 's' : ''}</span>
-    </div>
-  `).join('');
+  center.innerHTML = `
+    <p class="label">SCORES</p>
+    ${sorted.map((p, i) => `
+      <div style="display:flex;align-items:center;gap:10px;font-size:0.9rem;${p.id === data.winnerId ? 'color:#fbbf24;font-weight:700' : ''}">
+        <span style="font-family:var(--font-mono);width:20px;text-align:right">${i+1}.</span>
+        <span style="flex:1;text-align:left">${esc(p.name)}</span>
+        <span style="font-family:var(--font-mono);font-weight:700">${p.score}</span>
+      </div>
+    `).join('')}
+  `;
 
   const btn = $('#btn-next-round');
   if (state.isHost) {
@@ -503,14 +597,18 @@ $('#btn-next-round').addEventListener('click', () => {
 function showGameOver(data) {
   const sorted = [...data.scores].sort((a, b) => b.score - a.score);
   const container = $('#final-scores');
-  container.innerHTML = sorted.map((p, i) => `
-    <div class="final-row ${i === 0 ? 'champion' : ''}" style="animation: fadeIn 0.5s ease-out ${i * 0.1}s backwards">
-      <span class="final-rank">${i === 0 ? '\u{1F451}' : `#${i+1}`}</span>
-      <div class="player-avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div>
-      <span class="final-name">${esc(p.name)}</span>
-      <span class="final-score">${p.score} pt${p.score !== 1 ? 's' : ''}</span>
-    </div>
-  `).join('');
+  container.innerHTML = sorted.map((p, i) => {
+    const fullPlayer = state.players.find(pl => pl.id === p.id);
+    const avatar = fullPlayer?.avatar || '\u{1F3AE}';
+    return `
+      <div class="final-row ${i === 0 ? 'champion' : ''}" style="animation: fadeIn 0.5s ease-out ${i * 0.1}s backwards">
+        <span class="final-rank">${i === 0 ? '\u{1F451}' : `#${i+1}`}</span>
+        <div class="seat-avatar" style="background: linear-gradient(135deg, ${p.color}40, ${p.color}20); width:44px; height:44px; font-size:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0">${avatar}</div>
+        <span class="final-name">${esc(p.name)}</span>
+        <span class="final-score">${p.score} pt${p.score !== 1 ? 's' : ''}</span>
+      </div>
+    `;
+  }).join('');
 
   if (state.isHost) {
     $('#btn-play-again').classList.remove('hidden');
@@ -638,7 +736,16 @@ socket.on('auto-selected', (data) => {
   showToast('Time\u2019s up! Cards auto-selected for you.', 'info');
 });
 
-socket.on('player-selected', () => {});
+socket.on('player-selected', (data) => {
+  if (data.playerId) {
+    selectedPlayers.add(data.playerId);
+    // Re-render selection seats to show checkmark
+    renderTable('selection-seats', {
+      judgeId: state.judgeId,
+      selectedIds: selectedPlayers,
+    });
+  }
+});
 
 socket.on('player-submitted', (data) => {
   submittedPlayers.add(data.playerId);

@@ -228,6 +228,14 @@ function shuffle(arr) {
 }
 
 const AVATAR_COLORS = ['#8b5cf6','#ec4899','#f59e0b','#22c55e','#3b82f6','#ef4444','#06b6d4','#f97316'];
+const ANIMAL_AVATARS = ['🐱','🐻','🦊','🐸','🐼','🐨','🦁','🐯'];
+
+function pickAvatar(room) {
+  const used = room.players.map(p => p.avatar);
+  const available = ANIMAL_AVATARS.filter(a => !used.includes(a));
+  if (available.length === 0) return ANIMAL_AVATARS[Math.floor(Math.random() * ANIMAL_AVATARS.length)];
+  return available[Math.floor(Math.random() * available.length)];
+}
 
 const CATEGORY_ICONS = {
   automotive: '\u{1F3CE}', electronics: '\u{1F4F1}', fashion: '\u{1F45F}',
@@ -243,7 +251,7 @@ function createRoom(hostSocket, name) {
   let code;
   do { code = makeCode(); } while (rooms[code]);
 
-  const player = { id: hostSocket.id, name, color: AVATAR_COLORS[0], score: 0 };
+  const player = { id: hostSocket.id, name, color: AVATAR_COLORS[0], score: 0, avatar: ANIMAL_AVATARS[Math.floor(Math.random() * ANIMAL_AVATARS.length)] };
   rooms[code] = {
     code, players: [player], hostId: hostSocket.id,
     phase: 'lobby', round: 0, totalRounds: 0, judgeIndex: 0,
@@ -401,7 +409,8 @@ io.on('connection', (socket) => {
       return socket.emit('error-msg', { message: 'Name already taken' });
 
     const color = AVATAR_COLORS[room.players.length % AVATAR_COLORS.length];
-    const player = { id: socket.id, name, color, score: 0 };
+    const avatar = pickAvatar(room);
+    const player = { id: socket.id, name, color, score: 0, avatar };
     room.players.push(player);
     socket.join(room.code);
     socket.emit('room-joined', { code: room.code, players: room.players, you: socket.id, hostId: room.hostId });

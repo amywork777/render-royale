@@ -54,71 +54,87 @@
 
   <!-- ═══ LOBBY ═══ -->
   <div id="screen-lobby" class="screen">
-    <div class="lobby-container">
-      <p class="label">ROOM CODE</p>
-      <div class="room-code" id="lobby-code"></div>
-      <p class="hint">Share this code with friends to join</p>
-
-      <div class="players-list" id="lobby-players"></div>
-
-      <div id="lobby-host-controls" class="hidden">
-        <div class="rounds-picker">
-          <label class="label">ROUNDS</label>
-          <div class="stepper">
-            <button class="stepper-btn" id="rounds-minus">-</button>
-            <span id="rounds-value" class="stepper-value">4</span>
-            <button class="stepper-btn" id="rounds-plus">+</button>
+    <div class="table-screen-container">
+      <div class="poker-table-wrapper">
+        <div class="poker-table">
+          <div class="table-center-content" id="lobby-center">
+            <p class="label">ROOM CODE</p>
+            <div class="room-code" id="lobby-code"></div>
+            <p class="hint">Share this code with friends</p>
           </div>
         </div>
-        <button id="btn-start" class="btn btn-primary btn-large">Start Game</button>
-        <p class="hint" style="margin-top: 8px">You can play solo or with up to 4 players</p>
+        <div class="table-seats" id="lobby-seats"></div>
       </div>
-      <p id="lobby-waiting" class="hint">Waiting for host to start...</p>
+
+      <div class="below-table">
+        <div id="lobby-host-controls" class="hidden">
+          <div class="rounds-picker">
+            <label class="label">ROUNDS</label>
+            <div class="stepper">
+              <button class="stepper-btn" id="rounds-minus">-</button>
+              <span id="rounds-value" class="stepper-value">4</span>
+              <button class="stepper-btn" id="rounds-plus">+</button>
+            </div>
+          </div>
+          <button id="btn-start" class="btn btn-primary btn-large">Start Game</button>
+          <p class="hint" style="margin-top: 8px">You can play solo or with up to 4 players</p>
+        </div>
+        <p id="lobby-waiting" class="hint">Waiting for host to start...</p>
+      </div>
     </div>
   </div>
 
   <!-- ═══ ROUND START ═══ -->
   <div id="screen-round-start" class="screen">
-    <div class="round-start-container">
+    <div class="table-screen-container">
       <p class="label" id="round-label">ROUND 1 OF 4</p>
-      <p class="judge-label" id="judge-label"></p>
-      <p class="hint" style="margin-bottom: 8px">Your challenge: render this product!</p>
-      <div class="product-card-reveal" id="product-reveal">
-        <div class="product-card-inner">
-          <div class="product-card-front">
-            <div class="product-img-wrap" id="product-img-wrap">
-              <img id="product-img" class="product-img" alt="">
-              <div class="product-icon" id="product-icon"></div>
+      <div class="poker-table-wrapper">
+        <div class="poker-table">
+          <div class="table-center-content" id="round-start-center">
+            <div class="product-card-reveal" id="product-reveal">
+              <div class="product-card-inner">
+                <div class="product-card-back"></div>
+                <div class="product-card-front">
+                  <div class="product-img-wrap" id="product-img-wrap">
+                    <img id="product-img" class="product-img" alt="">
+                    <div class="product-icon" id="product-icon"></div>
+                  </div>
+                  <h2 class="product-name" id="product-name"></h2>
+                  <p class="product-desc" id="product-desc"></p>
+                  <span class="product-category" id="product-category"></span>
+                </div>
+              </div>
             </div>
-            <h2 class="product-name" id="product-name"></h2>
-            <p class="product-desc" id="product-desc"></p>
-            <span class="product-category" id="product-category"></span>
           </div>
         </div>
+        <div class="table-seats" id="round-start-seats"></div>
       </div>
+      <p class="judge-label" id="judge-label"></p>
     </div>
   </div>
 
   <!-- ═══ CARD SELECTION ═══ -->
   <div id="screen-card-selection" class="screen">
-    <div class="selection-container">
-      <div class="selection-header">
-        <div class="product-mini" id="mini-product"></div>
-        <div class="timer-ring" id="timer-selection">
-          <svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="36" class="timer-bg"/><circle cx="40" cy="40" r="36" class="timer-fg" id="timer-fg-selection"/></svg>
-          <span class="timer-text" id="timer-text-selection">30</span>
+    <div class="table-screen-container selection-layout">
+      <div class="poker-table-wrapper table-compact">
+        <div class="poker-table">
+          <div class="table-center-content" id="selection-center">
+            <div class="product-mini" id="mini-product"></div>
+            <div class="timer-ring" id="timer-selection">
+              <svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="36" class="timer-bg"/><circle cx="40" cy="40" r="36" class="timer-fg" id="timer-fg-selection"/></svg>
+              <span class="timer-text" id="timer-text-selection">30</span>
+            </div>
+          </div>
         </div>
+        <div class="table-seats" id="selection-seats"></div>
       </div>
 
-      <div class="step-banner">
-        <span class="step-banner-num">Step 1</span>
-        Pick your constraints
+      <div class="below-table">
+        <p class="instruction" id="selection-instruction">Tap <strong>3 cards</strong> to define your render's vibe</p>
+        <p class="selection-count">Selected: <span id="selected-count">0</span>/3</p>
+        <div class="hand" id="player-hand"></div>
+        <button id="btn-lock-cards" class="btn btn-primary btn-large" disabled>Lock In Cards</button>
       </div>
-      <p class="instruction" id="selection-instruction">Tap <strong>3 cards</strong> to define your render's vibe</p>
-      <p class="selection-count">Selected: <span id="selected-count">0</span>/3</p>
-
-      <div class="hand" id="player-hand"></div>
-      <button id="btn-lock-cards" class="btn btn-primary btn-large" disabled>Lock In Cards</button>
     </div>
   </div>
 
@@ -164,23 +180,39 @@
 
   <!-- ═══ JUDGING ═══ -->
   <div id="screen-judging" class="screen">
-    <div class="judging-container">
-      <h2 class="section-title" id="judging-title">Pick Your Favorite</h2>
-      <p class="hint" id="judging-hint">Click a submission to crown the winner</p>
-      <div class="submissions-grid" id="submissions-grid"></div>
-      <button id="btn-pick-winner" class="btn btn-primary btn-large hidden">Crown the Winner</button>
+    <div class="table-screen-container">
+      <div class="poker-table-wrapper">
+        <div class="poker-table">
+          <div class="table-center-content" id="judging-center">
+            <h2 class="section-title" id="judging-title">Pick Your Favorite</h2>
+          </div>
+        </div>
+        <div class="table-seats" id="judging-seats"></div>
+      </div>
+      <div class="below-table">
+        <p class="hint" id="judging-hint">Click a submission to crown the winner</p>
+        <div class="submissions-grid" id="submissions-grid"></div>
+        <button id="btn-pick-winner" class="btn btn-primary btn-large hidden">Crown the Winner</button>
+      </div>
     </div>
   </div>
 
   <!-- ═══ SCOREBOARD ═══ -->
   <div id="screen-scoreboard" class="screen">
-    <div class="scoreboard-container">
+    <div class="table-screen-container">
       <div class="winner-announce" id="winner-announce">
         <p class="label">ROUND WINNER</p>
         <h2 class="winner-name" id="winner-name"></h2>
       </div>
-      <div class="scores-list" id="scores-list"></div>
-      <button id="btn-next-round" class="btn btn-primary btn-large hidden">Next Round</button>
+      <div class="poker-table-wrapper">
+        <div class="poker-table">
+          <div class="table-center-content" id="scoreboard-center"></div>
+        </div>
+        <div class="table-seats" id="scoreboard-seats"></div>
+      </div>
+      <div class="below-table">
+        <button id="btn-next-round" class="btn btn-primary btn-large hidden">Next Round</button>
+      </div>
     </div>
   </div>
 
