@@ -49,6 +49,9 @@ html, body {
   color: var(--text);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  /* Safe area for notched phones */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 /* ── Background Atmosphere ──────────────────────────────────────────────── */
@@ -93,6 +96,7 @@ html, body {
   display: none;
   position: relative; z-index: 1;
   min-height: 100vh;
+  min-height: 100dvh;
   padding: 40px 24px;
   animation: screenIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -307,7 +311,6 @@ html, body {
   font-size: clamp(2.8rem, 10vw, 5.5rem);
   line-height: 1;
   letter-spacing: -0.02em;
-  white-space: nowrap;
   background: linear-gradient(135deg, #e0ccff 0%, #c084fc 25%, #8b5cf6 50%, #7c3aed 75%, #a78bfa 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
@@ -413,7 +416,7 @@ html, body {
 /* ── Toast ───────────────────────────────────────────────────────────── */
 
 .toast {
-  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  position: fixed; bottom: calc(32px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%);
   padding: 12px 24px;
   background: rgba(239, 68, 68, 0.9);
   color: white;
@@ -422,7 +425,7 @@ html, body {
   backdrop-filter: blur(12px);
   animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 100;
-  white-space: nowrap;
+  max-width: calc(100vw - 32px);
   border: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
@@ -1385,35 +1388,150 @@ html, body {
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 
+/* Tablet-ish */
+@media (max-width: 768px) {
+  .screen { padding: 32px 16px; }
+  .table-screen-container { gap: 20px; }
+  .below-table { gap: 14px; }
+  .submissions-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .rendering-container { gap: 16px; }
+  .upload-zone { min-height: 220px; }
+  .upload-content { padding: 28px; }
+}
+
+/* Phone */
 @media (max-width: 600px) {
-  .poker-table { height: 180px; }
-  .table-compact .poker-table { height: 140px; }
-  .poker-table-wrapper { padding: 40px 24px 64px; margin-bottom: 52px; }
-  .room-code { font-size: 2rem; }
-  .seat-avatar { width: 40px; height: 40px; font-size: 20px; }
-  .seat-name { font-size: 0.65rem; }
-  .seat-bottom { bottom: -32px; }
-  .seat-top { top: -32px; }
-  .seat-left { left: -20px; }
-  .seat-right { right: -20px; }
+  /* ── Global ── */
+  .screen { padding: 24px 12px; min-height: 100dvh; }
+  .table-screen-container { gap: 16px; }
+  .below-table { gap: 12px; }
 
-  .hand .prompt-card {
-    width: 130px; min-width: 130px;
-    padding: 10px;
-  }
-  .hand .prompt-card .card-desc { display: none; }
+  /* ── Poker Table ── */
+  .poker-table { height: 160px; }
+  .table-compact .poker-table { height: 120px; }
+  .poker-table-wrapper { padding: 36px 20px 56px; margin-bottom: 44px; }
+  .table-center-content { padding: 14px; gap: 8px; max-width: 260px; }
+  .table-compact .table-center-content { padding: 8px; gap: 6px; }
+  .room-code { font-size: 1.8rem; letter-spacing: 0.2em; }
+  .room-code-letter { font-size: inherit; }
 
-  .product-card-reveal { width: 140px; height: 200px; }
-  .product-card-front { padding: 14px; gap: 6px; }
-  .product-name { font-size: 1rem; }
-  .product-icon { font-size: 2rem; }
+  /* ── Seats ── */
+  .seat-avatar { width: 38px; height: 38px; font-size: 18px; border-width: 2px; }
+  .seat-name { font-size: 0.6rem; max-width: 64px; }
+  .seat-badge { font-size: 0.5rem; padding: 1px 4px; }
+  .seat-bottom { bottom: -30px; }
+  .seat-top { top: -30px; }
+  .seat-left { left: -16px; }
+  .seat-right { right: -16px; }
+  .seat-crown { font-size: 14px; top: -10px; }
 
-  .title { font-size: 3rem; }
-
-  .home-steps { flex-direction: column; gap: 10px; padding: 16px; }
-  .home-step-arrow { transform: rotate(90deg); }
-  .home-title { font-size: clamp(2.2rem, 9vw, 3.5rem); }
+  /* ── Home ── */
+  .home-container { gap: 24px; padding: 0 12px; }
+  .home-title { font-size: clamp(2rem, 9vw, 3.5rem); }
+  .home-subtitle { font-size: 0.95rem; }
+  .home-emoji-ring { width: 64px; height: 64px; margin-bottom: 4px; }
+  .ring-emoji { font-size: 22px; }
+  .home-steps { flex-direction: column; gap: 8px; padding: 14px 16px; }
+  .home-step { font-size: 0.8rem; }
+  .home-step-arrow { transform: rotate(90deg); font-size: 0.7rem; margin: 0; }
+  .home-form { max-width: 100%; gap: 12px; }
+  .home-input { padding: 14px 16px; font-size: 1rem; }
+  .home-buttons { gap: 10px; }
+  .btn-large { padding: 14px 24px; font-size: 1rem; }
   .deco-card { display: none; }
 
-  .winner-announce::before { width: 200px; height: 200px; }
+  /* ── Cards in Hand ── */
+  .hand {
+    padding: 12px 8px 6px;
+    min-height: 150px;
+    gap: 8px;
+  }
+  .hand .prompt-card {
+    width: 120px; min-width: 120px;
+    padding: 10px 8px;
+  }
+  .hand .prompt-card .card-desc { display: none; }
+  .card-name { font-size: 0.8rem; }
+  .card-category-tag { font-size: 0.55rem; }
+
+  /* ── Product Card Reveal ── */
+  .product-card-reveal { width: 130px; height: 185px; }
+  .product-card-front { padding: 12px; gap: 6px; }
+  .product-name { font-size: 0.95rem; }
+  .product-desc { font-size: 0.65rem; }
+  .product-icon { font-size: 1.8rem; }
+  .product-category { font-size: 0.55rem; }
+
+  /* ── Timer ── */
+  .timer-ring { width: 48px; height: 48px; }
+  .timer-text { font-size: 0.7rem; }
+
+  /* ── Selection ── */
+  .selection-layout { gap: 16px; }
+  .instruction { font-size: 0.9rem; }
+  .selection-count { font-size: 0.75rem; }
+  .selection-dots { gap: 6px; }
+  .selection-dot { width: 8px; height: 8px; }
+
+  /* ── Rendering ── */
+  .rendering-container { gap: 14px; }
+  .rendering-header { flex-wrap: wrap; gap: 10px; }
+  .upload-zone { min-height: 180px; }
+  .upload-content { padding: 24px 16px; }
+  .upload-icon { width: 36px; height: 36px; }
+  .upload-text { font-size: 0.85rem; }
+  .upload-hint { font-size: 0.7rem; }
+  .upload-preview { max-height: 280px; }
+  .my-cards { gap: 8px; }
+  .my-cards .prompt-card { padding: 8px 10px; max-width: 160px; }
+  .step-banner { font-size: 0.8rem; padding: 8px 12px; gap: 8px; }
+
+  /* ── Judging ── */
+  .submissions-grid { grid-template-columns: 1fr; gap: 14px; }
+  .section-title { font-size: 1.4rem; }
+
+  /* ── Scoreboard ── */
+  .winner-name { font-size: 1.8rem; }
+  .winner-announce::before { width: 180px; height: 180px; }
+
+  /* ── Game Over ── */
+  .title { font-size: 2.5rem; }
+  .gameover-container { gap: 24px; }
+  .final-row { padding: 12px 14px; gap: 10px; }
+  .final-rank { font-size: 1.2rem; width: 32px; }
+  .final-name { font-size: 0.95rem; }
+  .final-score { font-size: 1.2rem; }
+
+  /* ── Misc ── */
+  .toast {
+    white-space: normal;
+    max-width: calc(100vw - 32px);
+    text-align: center;
+    font-size: 0.8rem;
+    padding: 10px 16px;
+  }
+  .rounds-picker { gap: 12px; margin-bottom: 14px; }
+  .stepper-btn { width: 40px; height: 40px; font-size: 1.1rem; }
+  .stepper-value { width: 40px; font-size: 1.1rem; }
+  .judge-label { font-size: 0.95rem; }
+  #round-label { font-size: 10px; padding: 5px 14px; }
+  .product-mini { font-size: 0.75rem; padding: 5px 10px; }
+  .product-mini-img { width: 24px; height: 24px; }
+}
+
+/* Very small phones (iPhone SE, etc) */
+@media (max-width: 380px) {
+  .home-title { font-size: clamp(1.8rem, 10vw, 2.5rem); }
+  .home-buttons { grid-template-columns: 1fr; }
+  .btn-large { padding: 12px 20px; font-size: 0.9rem; }
+  .poker-table { height: 130px; }
+  .table-compact .poker-table { height: 100px; }
+  .poker-table-wrapper { padding: 30px 16px 48px; margin-bottom: 36px; }
+  .hand .prompt-card { width: 110px; min-width: 110px; padding: 8px 6px; }
+  .card-name { font-size: 0.75rem; }
+  .seat-avatar { width: 32px; height: 32px; font-size: 16px; }
+  .seat-bottom { bottom: -26px; }
+  .seat-top { top: -26px; }
+  .winner-name { font-size: 1.5rem; }
+  .room-code { font-size: 1.5rem; }
 }
