@@ -302,22 +302,14 @@ function showCardSelection() {
   $('#selection-instruction').innerHTML = 'Tap <strong>3 cards</strong> to define your render\u2019s vibe';
 
   const hand = $('#player-hand');
-  const cardCount = state.hand.length;
-  const maxFanAngle = 20; // degrees total fan spread
-  const angleStep = cardCount > 1 ? maxFanAngle / (cardCount - 1) : 0;
-  const startAngle = -maxFanAngle / 2;
 
-  hand.innerHTML = state.hand.map((card, i) => {
-    const rotation = cardCount > 1 ? startAngle + (angleStep * i) : 0;
-    return `
-      <div class="prompt-card" data-id="${card.id}" data-category="${card.category}"
-           style="--fan-rotation: ${rotation}deg; transform: rotate(${rotation}deg); animation-delay: ${i * 0.06}s">
-        <div class="card-category-tag">${CATEGORY_ICONS[card.category] || ''} ${CATEGORY_LABELS[card.category] || card.category}</div>
-        <div class="card-name">${esc(card.name)}</div>
-        <div class="card-desc">${esc(card.desc)}</div>
-      </div>
-    `;
-  }).join('');
+  hand.innerHTML = state.hand.map((card, i) => `
+    <div class="prompt-card" data-id="${card.id}" data-category="${card.category}" style="animation-delay: ${i * 0.06}s">
+      <div class="card-category-tag">${CATEGORY_ICONS[card.category] || ''} ${CATEGORY_LABELS[card.category] || card.category}</div>
+      <div class="card-name">${esc(card.name)}</div>
+      <div class="card-desc">${esc(card.desc)}</div>
+    </div>
+  `).join('');
 
   hand.querySelectorAll('.prompt-card').forEach(el => {
     el.addEventListener('click', () => {
