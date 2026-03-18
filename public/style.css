@@ -107,7 +107,6 @@ html, body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  word-break: break-word;
 }
 
 .label {
@@ -117,13 +116,6 @@ html, body {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--text-dim);
-}
-
-.tagline {
-  font-size: 1.1rem;
-  color: var(--text-muted);
-  margin-top: 8px;
-  font-weight: 300;
 }
 
 .hint { font-size: 0.85rem; color: var(--text-dim); }
@@ -218,21 +210,111 @@ html, body {
 
 /* ── HOME ───────────────────────────────────────────────────────────────── */
 
+#screen-home {
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .home-container {
   text-align: center;
-  max-width: 520px;
+  max-width: 600px;
   width: 100%;
-  padding: 0 16px;
+  padding: 0 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 32px;
+  position: relative;
+  z-index: 2;
 }
 
-.logo-mark {
-  display: flex; justify-content: center; margin-bottom: 16px;
+/* Hero section */
+.home-hero {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
 }
-.logo-icon { width: 56px; height: 56px; }
 
+.home-emoji-ring {
+  position: relative;
+  width: 80px; height: 80px;
+  margin-bottom: 8px;
+}
+.ring-emoji {
+  position: absolute;
+  font-size: 28px;
+  animation: emojiFloat 3s ease-in-out infinite;
+}
+.ring-1 { top: 0; left: 50%; transform: translateX(-50%); animation-delay: 0s; }
+.ring-2 { bottom: 0; left: 4px; animation-delay: -1s; }
+.ring-3 { bottom: 0; right: 4px; animation-delay: -2s; }
+
+@keyframes emojiFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.home-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.8rem, 10vw, 5.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  background: linear-gradient(135deg, #e0ccff 0%, #c084fc 25%, #8b5cf6 50%, #7c3aed 75%, #a78bfa 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 30px rgba(139,92,246,0.4));
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.home-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Steps - horizontal flow */
+.home-steps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.home-step {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.home-step-icon { font-size: 1.3rem; }
+.home-step-text { white-space: nowrap; }
+.home-step-arrow {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin: 0 2px;
+}
+
+/* Form */
 .home-form {
-  margin-top: 40px;
   display: flex; flex-direction: column; gap: 16px;
+  width: 100%;
+  max-width: 440px;
+}
+
+.home-input {
+  text-align: center;
+  font-size: 1.1rem;
+  padding: 16px 20px;
 }
 
 .home-buttons {
@@ -244,6 +326,35 @@ html, body {
   animation: fadeIn 0.3s ease-out;
 }
 .join-section .input-code { flex: 1; }
+
+/* Floating decorative cards */
+.home-deco-cards {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+.deco-card {
+  position: absolute;
+  width: 60px; height: 80px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  opacity: 0.15;
+  animation: decoFloat 12s ease-in-out infinite;
+}
+.deco-card-1 { top: 8%; left: 5%; animation-delay: 0s; transform: rotate(-15deg); }
+.deco-card-2 { top: 15%; right: 8%; animation-delay: -2s; transform: rotate(12deg); }
+.deco-card-3 { bottom: 20%; left: 8%; animation-delay: -4s; transform: rotate(-8deg); }
+.deco-card-4 { bottom: 12%; right: 5%; animation-delay: -6s; transform: rotate(20deg); }
+.deco-card-5 { top: 50%; left: 2%; animation-delay: -8s; transform: rotate(-25deg); }
+
+@keyframes decoFloat {
+  0%, 100% { transform: translateY(0) rotate(var(--r, -15deg)); }
+  50% { transform: translateY(-20px) rotate(var(--r, -15deg)); }
+}
 
 .hidden { display: none !important; }
 
@@ -264,31 +375,6 @@ html, body {
 @keyframes toastIn {
   from { opacity: 0; transform: translateX(-50%) translateY(20px); }
   to { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-/* ── How to Play Steps ──────────────────────────────────────────────────── */
-
-.how-to-play {
-  margin: 28px 0 8px;
-  display: flex; flex-direction: column; gap: 6px;
-}
-.how-step {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  text-align: left;
-}
-.step-num {
-  width: 24px; height: 24px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--surface-3);
-  border: 1px solid var(--border-bright);
-  border-radius: 50%;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--primary-bright);
-  flex-shrink: 0;
 }
 
 /* ── Step Banner (in-game instructions) ─────────────────────────────────── */
@@ -1034,4 +1120,9 @@ html, body {
   .product-icon { font-size: 2rem; }
 
   .title { font-size: 3rem; }
+
+  .home-steps { flex-direction: column; gap: 10px; padding: 16px; }
+  .home-step-arrow { transform: rotate(90deg); }
+  .home-title { font-size: clamp(2.2rem, 9vw, 3.5rem); }
+  .deco-card { display: none; }
 }

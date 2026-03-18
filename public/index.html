@@ -20,29 +20,53 @@
 
   <!-- ═══ HOME ═══ -->
   <div id="screen-home" class="screen active">
-    <div class="home-container">
-      <div class="logo-mark">
-        <svg viewBox="0 0 48 48" fill="none" class="logo-icon">
-          <rect x="4" y="4" width="40" height="40" rx="8" stroke="url(#logo-grad)" stroke-width="3" fill="none"/>
-          <path d="M16 32V20l8 6 8-6v12" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <defs><linearGradient id="logo-grad" x1="4" y1="4" x2="44" y2="44"><stop stop-color="#c084fc"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs>
-        </svg>
-      </div>
-      <h1 class="title">RENDER<br>ROYALE</h1>
-      <p class="tagline">The Vizcom card game</p>
+    <!-- Floating decorative cards -->
+    <div class="home-deco-cards">
+      <div class="deco-card deco-card-1">🎨</div>
+      <div class="deco-card deco-card-2">💡</div>
+      <div class="deco-card deco-card-3">📷</div>
+      <div class="deco-card deco-card-4">🌍</div>
+      <div class="deco-card deco-card-5">💎</div>
+    </div>
 
-      <div class="how-to-play">
-        <div class="how-step"><span class="step-num">1</span> A product card is revealed</div>
-        <div class="how-step"><span class="step-num">2</span> Pick 3 prompt cards (style, lighting, etc.)</div>
-        <div class="how-step"><span class="step-num">3</span> Create your render in Vizcom</div>
-        <div class="how-step"><span class="step-num">4</span> The judge picks the best one!</div>
+    <div class="home-container">
+      <div class="home-hero">
+        <div class="home-emoji-ring">
+          <span class="ring-emoji ring-1">🎴</span>
+          <span class="ring-emoji ring-2">🏆</span>
+          <span class="ring-emoji ring-3">🎨</span>
+        </div>
+        <h1 class="home-title">RENDER ROYALE</h1>
+        <p class="home-subtitle">The Vizcom card game</p>
+      </div>
+
+      <div class="home-steps">
+        <div class="home-step">
+          <span class="home-step-icon">🃏</span>
+          <span class="home-step-text">A product card is revealed</span>
+        </div>
+        <div class="home-step-arrow">→</div>
+        <div class="home-step">
+          <span class="home-step-icon">🎯</span>
+          <span class="home-step-text">Pick 3 prompt cards</span>
+        </div>
+        <div class="home-step-arrow">→</div>
+        <div class="home-step">
+          <span class="home-step-icon">✨</span>
+          <span class="home-step-text">Render in Vizcom</span>
+        </div>
+        <div class="home-step-arrow">→</div>
+        <div class="home-step">
+          <span class="home-step-icon">👑</span>
+          <span class="home-step-text">Judge picks the best!</span>
+        </div>
       </div>
 
       <div class="home-form">
-        <input type="text" id="player-name" class="input" placeholder="Enter your name to start" maxlength="16" autocomplete="off" spellcheck="false">
+        <input type="text" id="player-name" class="input home-input" placeholder="What's your name?" maxlength="16" autocomplete="off" spellcheck="false">
         <div class="home-buttons">
-          <button id="btn-create" class="btn btn-primary" disabled>Create Room</button>
-          <button id="btn-join-toggle" class="btn btn-secondary" disabled>Join Room</button>
+          <button id="btn-create" class="btn btn-primary btn-large" disabled>🎮 Create Room</button>
+          <button id="btn-join-toggle" class="btn btn-secondary btn-large" disabled>🚪 Join Room</button>
         </div>
         <div id="join-section" class="join-section hidden">
           <input type="text" id="room-code-input" class="input input-code" placeholder="CODE" maxlength="4" autocomplete="off" spellcheck="false">
