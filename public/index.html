@@ -14,60 +14,25 @@
   <div class="bg-grain"></div>
   <div class="bg-blob bg-blob-1"></div>
   <div class="bg-blob bg-blob-2"></div>
-  <div class="bg-blob bg-blob-3"></div>
 
   <!-- Global toast -->
   <div id="error-toast" class="toast hidden"></div>
 
   <!-- ═══ HOME ═══ -->
   <div id="screen-home" class="screen active">
-    <!-- Floating decorative cards -->
-    <div class="home-deco-cards">
-      <div class="deco-card deco-card-1">🎨</div>
-      <div class="deco-card deco-card-2">💡</div>
-      <div class="deco-card deco-card-3">📷</div>
-      <div class="deco-card deco-card-4">🌍</div>
-      <div class="deco-card deco-card-5">💎</div>
-    </div>
-
     <div class="home-container">
       <div class="home-hero">
-        <div class="home-emoji-ring">
-          <span class="ring-emoji ring-1">🎴</span>
-          <span class="ring-emoji ring-2">🏆</span>
-          <span class="ring-emoji ring-3">🎨</span>
-        </div>
         <h1 class="home-title">RENDER ROYALE</h1>
         <p class="home-subtitle">The Vizcom card game</p>
       </div>
 
-      <div class="home-steps">
-        <div class="home-step">
-          <span class="home-step-icon">🃏</span>
-          <span class="home-step-text">A product card is revealed</span>
-        </div>
-        <div class="home-step-arrow">→</div>
-        <div class="home-step">
-          <span class="home-step-icon">🎯</span>
-          <span class="home-step-text">Pick 3 prompt cards</span>
-        </div>
-        <div class="home-step-arrow">→</div>
-        <div class="home-step">
-          <span class="home-step-icon">✨</span>
-          <span class="home-step-text">Render in Vizcom</span>
-        </div>
-        <div class="home-step-arrow">→</div>
-        <div class="home-step">
-          <span class="home-step-icon">👑</span>
-          <span class="home-step-text">Judge picks the best!</span>
-        </div>
-      </div>
+      <p class="home-tagline">Draw a product card, pick 3 prompt cards, render in Vizcom, and the judge picks the best.</p>
 
       <div class="home-form">
         <input type="text" id="player-name" class="input home-input" placeholder="What's your name?" maxlength="16" autocomplete="off" spellcheck="false">
         <div class="home-buttons">
-          <button id="btn-create" class="btn btn-primary btn-large" disabled>🎮 Create Room</button>
-          <button id="btn-join-toggle" class="btn btn-secondary btn-large" disabled>🚪 Join Room</button>
+          <button id="btn-create" class="btn btn-primary btn-large" disabled>Create Room</button>
+          <button id="btn-join-toggle" class="btn btn-secondary btn-large" disabled>Join Room</button>
         </div>
         <div id="join-section" class="join-section hidden">
           <input type="text" id="room-code-input" class="input input-code" placeholder="CODE" maxlength="4" autocomplete="off" spellcheck="false">
@@ -156,11 +121,6 @@
 
       <div class="below-table">
         <p class="instruction" id="selection-instruction">Tap <strong>3 cards</strong> to define your render's vibe</p>
-        <div class="selection-dots" id="selection-dots">
-          <div class="selection-dot"></div>
-          <div class="selection-dot"></div>
-          <div class="selection-dot"></div>
-        </div>
         <p class="selection-count">Selected: <span id="selected-count">0</span>/3</p>
         <div class="hand" id="player-hand"></div>
         <button id="btn-lock-cards" class="btn btn-primary btn-large" disabled>Lock In Cards</button>
